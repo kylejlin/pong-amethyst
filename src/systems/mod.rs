@@ -1,3 +1,5 @@
+mod move_balls;
 mod paddle;
 
-pub use self::paddle::PaddleSystem;
+pub use move_balls::MoveBallsSystem;
+pub use paddle::PaddleSystem;
