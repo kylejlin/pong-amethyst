@@ -1,7 +1,12 @@
+mod pong;
+mod systems;
+
+use crate::pong::Pong;
 use amethyst::{
     assets::Processor,
     core::TransformBundle,
     ecs::{ReadExpect, Resources, SystemData},
+    input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         pass::DrawFlat2DDesc, types::DefaultBackend, Factory, Format, GraphBuilder, GraphCreator,
@@ -10,10 +15,6 @@ use amethyst::{
     utils,
     window::{ScreenDimensions, Window, WindowBundle},
 };
-use crate::pong::Pong;
-
-mod pong;
-
 
 
 fn main() -> amethyst::Result<()> {
@@ -22,14 +23,21 @@ fn main() -> amethyst::Result<()> {
     let app_root = utils::application_root_dir()?;
     let display_config_path = app_root.join("resources").join("display_config.ron");
 
+    let binding_path = app_root.join("resources").join("bindings_config.ron");
+
+    let input_bundle =
+        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
+
     let game_data = GameDataBuilder::default()
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
         .with_bundle(TransformBundle::new())?
+        .with_bundle(input_bundle)?
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",
             &[],
         )
+        .with(systems::PaddleSystem, "paddle_system", &["input_system"])
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             ExampleGraph::default(),
         ));
