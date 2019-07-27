@@ -1,5 +1,6 @@
 use amethyst::{
     assets::Processor,
+    core::TransformBundle,
     ecs::{ReadExpect, Resources, SystemData},
     prelude::*,
     renderer::{
@@ -9,10 +10,11 @@ use amethyst::{
     utils,
     window::{ScreenDimensions, Window, WindowBundle},
 };
+use crate::pong::Pong;
 
-pub struct Pong;
+mod pong;
 
-impl SimpleState for Pong {}
+
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -22,6 +24,7 @@ fn main() -> amethyst::Result<()> {
 
     let game_data = GameDataBuilder::default()
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
+        .with_bundle(TransformBundle::new())?
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",
