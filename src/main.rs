@@ -44,6 +44,11 @@ fn main() -> amethyst::Result<()> {
             "bounce_system",
             &["paddle_system", "move_balls_system"],
         )
+        .with(
+            systems::WinnerSystem,
+            "winner_system",
+            &["move_balls_system"],
+        )
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             ExampleGraph::default(),
         ));

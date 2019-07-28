@@ -33,6 +33,8 @@ impl SimpleState for Pong {
         self.ball_spawn_timer = Some(BALL_SPAWN_DELAY);
         self.sprite_sheet_handle = Some(sprite_sheet_handle.clone());
 
+        world.add_resource(Score(0, 0));
+
         initialize_camera(world);
         intitialize_paddles(world, sprite_sheet_handle.clone());
     }
@@ -171,4 +173,17 @@ fn intitialize_ball(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>)
         })
         .with(local_transform)
         .build();
+}
+
+#[derive(Default)]
+pub struct Score(u32, u32);
+
+impl Score {
+    pub fn increment_left(&mut self) {
+        self.0 += 1;
+    }
+
+    pub fn increment_right(&mut self) {
+        self.1 += 1;
+    }
 }
