@@ -2,6 +2,7 @@ mod audio;
 mod pong;
 mod systems;
 
+use crate::{audio::Music};
 use crate::pong::Pong;
 use amethyst::{
     assets::Processor,
@@ -19,6 +20,10 @@ use amethyst::{
     window::{ScreenDimensions, Window, WindowBundle},
 };
 
+const AUDIO_MUSIC: &[&str] = &[
+    "audio/Computer_Music_All-Stars_-_Wheres_My_Jetpack.ogg",
+    "audio/Computer_Music_All-Stars_-_Albatross_v2.ogg",
+];
 const AUDIO_BOUNCE: &str = "audio/bounce.ogg";
 const AUDIO_SCORE: &str = "audio/score.ogg";
 
@@ -38,6 +43,8 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
         .with_bundle(UiBundle::<DefaultBackend, StringBindings>::new())?
+        .with_bundle(AudioBundle::default())?
+        .with(DjSystem::new(|music: &mut Music| music.music.next()), "dj_system", &[])
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",
@@ -45,7 +52,6 @@ fn main() -> amethyst::Result<()> {
         )
         .with(systems::PaddleSystem, "paddle_system", &["input_system"])
         .with(systems::MoveBallsSystem, "move_balls_system", &[])
-        .with_bundle(AudioBundle::default())?
         .with(
             systems::BounceSystem,
             "bounce_system",
