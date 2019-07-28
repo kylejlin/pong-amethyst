@@ -1,3 +1,5 @@
+use crate::audio::initialize_audio;
+
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{timing::Time, transform::Transform},
@@ -38,6 +40,7 @@ impl SimpleState for Pong {
         initialize_camera(world);
         intitialize_paddles(world, sprite_sheet_handle.clone());
         initialize_scoreboard(world);
+        initialize_audio(world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

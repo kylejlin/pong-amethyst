@@ -1,9 +1,11 @@
+mod audio;
 mod pong;
 mod systems;
 
 use crate::pong::Pong;
 use amethyst::{
     assets::Processor,
+    audio::{AudioBundle, DjSystem},
     core::TransformBundle,
     ecs::{ReadExpect, Resources, SystemData},
     input::{InputBundle, StringBindings},
@@ -17,6 +19,8 @@ use amethyst::{
     window::{ScreenDimensions, Window, WindowBundle},
 };
 
+const AUDIO_BOUNCE: &str = "audio/bounce.ogg";
+const AUDIO_SCORE: &str = "audio/score.ogg";
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -41,6 +45,7 @@ fn main() -> amethyst::Result<()> {
         )
         .with(systems::PaddleSystem, "paddle_system", &["input_system"])
         .with(systems::MoveBallsSystem, "move_balls_system", &[])
+        .with_bundle(AudioBundle::default())?
         .with(
             systems::BounceSystem,
             "bounce_system",

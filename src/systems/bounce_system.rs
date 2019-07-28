@@ -1,9 +1,14 @@
+use crate::audio::{self, Sounds};
 use crate::pong::{Ball, Paddle, Side, ARENA_HEIGHT};
 
 use amethyst::{
+    assets::AssetStorage,
+    audio::{output::Output, Source},
     core::{Float, Transform},
-    ecs::prelude::{Join, ReadStorage, System, WriteStorage},
+    ecs::prelude::{Join, Read, ReadExpect, ReadStorage, System, WriteStorage},
 };
+
+use std::ops::Deref;
 
 pub struct BounceSystem;
 
@@ -12,15 +17,19 @@ impl<'s> System<'s> for BounceSystem {
         WriteStorage<'s, Ball>,
         ReadStorage<'s, Paddle>,
         ReadStorage<'s, Transform>,
+        Read<'s, AssetStorage<Source>>,
+        ReadExpect<'s, Sounds>,
+        Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (mut balls, paddles, transforms): Self::SystemData) {
+    fn run(&mut self, (mut balls, paddles, transforms, storage, sounds, audio_output): Self::SystemData) {
         for (ball, transform) in (&mut balls, &transforms).join() {
             let ball_x = transform.translation().x;
             let ball_y = transform.translation().y;
 
             if (ball_y.as_f32() < ball.radius) || (ball_y.as_f32() > ARENA_HEIGHT - ball.radius) {
                 ball.velocity[1] *= -1.0;
+                audio::play_bounce(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
             }
 
             for (paddle, paddle_transform) in (&paddles, &transforms).join() {
@@ -38,6 +47,7 @@ impl<'s> System<'s> for BounceSystem {
                     || (paddle.side == Side::Right && ball.velocity[0] > 0.0))
                 {
                     ball.velocity[0] *= -1.0;
+                    audio::play_bounce(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                 }
             }
         }
