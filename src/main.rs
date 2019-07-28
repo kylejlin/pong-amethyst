@@ -12,6 +12,7 @@ use amethyst::{
         pass::DrawFlat2DDesc, types::DefaultBackend, Factory, Format, GraphBuilder, GraphCreator,
         Kind, RenderGroupDesc, RenderingSystem, SpriteSheet, SubpassBuilder,
     },
+    ui::{DrawUiDesc, UiBundle},
     utils,
     window::{ScreenDimensions, Window, WindowBundle},
 };
@@ -32,6 +33,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
+        .with_bundle(UiBundle::<DefaultBackend, StringBindings>::new())?
         .with(
             Processor::<SpriteSheet>::new(),
             "sprite_sheet_processor",
@@ -114,6 +116,7 @@ impl GraphCreator<DefaultBackend> for ExampleGraph {
         let pass = graph_builder.add_node(
             SubpassBuilder::new()
                 .with_group(DrawFlat2DDesc::new().builder())
+                .with_group(DrawUiDesc::default().builder())
                 .with_color(color)
                 .with_depth_stencil(depth)
                 .into_pass(),

@@ -1,9 +1,10 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{timing::Time, transform::Transform},
-    ecs::prelude::{Component, DenseVecStorage},
+    ecs::prelude::{Component, DenseVecStorage, Entity},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 
 pub const ARENA_HEIGHT: f32 = 100.0;
@@ -33,10 +34,10 @@ impl SimpleState for Pong {
         self.ball_spawn_timer = Some(BALL_SPAWN_DELAY);
         self.sprite_sheet_handle = Some(sprite_sheet_handle.clone());
 
-        world.add_resource(Score(0, 0));
 
         initialize_camera(world);
         intitialize_paddles(world, sprite_sheet_handle.clone());
+        initialize_scoreboard(world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -176,7 +177,7 @@ fn intitialize_ball(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>)
 }
 
 #[derive(Default)]
-pub struct Score(u32, u32);
+pub struct Score(pub u32, pub u32);
 
 impl Score {
     pub fn increment_left(&mut self) {
@@ -186,4 +187,61 @@ impl Score {
     pub fn increment_right(&mut self) {
         self.1 += 1;
     }
+}
+
+pub struct ScoreText(pub Entity, pub Entity);
+
+fn initialize_scoreboard(world: &mut World) {
+    world.add_resource(Score(0, 0));
+
+
+    let font = world.read_resource::<Loader>().load(
+        "font/square.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
+    let left_transform = UiTransform::new(
+        "P1".to_string(),
+        Anchor::TopMiddle,
+        Anchor::TopMiddle,
+        -50.,
+        -50.,
+        1.,
+        200.,
+        50.,
+    );
+    let right_transform = UiTransform::new(
+        "P2".to_string(),
+        Anchor::TopMiddle,
+        Anchor::TopMiddle,
+        50.,
+        -50.,
+        1.,
+        200.,
+        50.,
+    );
+
+    let left_score = world
+        .create_entity()
+        .with(left_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0".to_string(),
+            [1., 1., 1., 1.],
+            50.,
+        ))
+        .build();
+    let right_score = world
+        .create_entity()
+        .with(right_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0".to_string(),
+            [1., 1., 1., 1.],
+            50.,
+        ))
+        .build();
+
+    world.add_resource(ScoreText(left_score, right_score));
 }
