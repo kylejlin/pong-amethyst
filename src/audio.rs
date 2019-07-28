@@ -12,6 +12,14 @@ pub fn play_bounce(sounds: &Sounds, storage: &AssetStorage<Source>, output: Opti
     }
 }
 
+pub fn play_score(sounds: &Sounds, storage: &AssetStorage<Source>, output: Option<&Output>) {
+    if let Some(output) = output.as_ref() {
+        if let Some(sound) = storage.get(&sounds.score_sfx) {
+            output.play_once(sound, 1.0);
+        }
+    }
+}
+
 pub struct Sounds {
     pub score_sfx: SourceHandle,
     pub bounce_sfx: SourceHandle,
@@ -30,7 +38,7 @@ pub fn initialize_audio(world: &mut World) {
 
         Sounds {
             bounce_sfx: load_audio_track(&loader, world, AUDIO_BOUNCE),
-            score_sfx: load_audio_track(&loader, world, AUDIO_BOUNCE),
+            score_sfx: load_audio_track(&loader, world, AUDIO_SCORE),
         }
     };
 
